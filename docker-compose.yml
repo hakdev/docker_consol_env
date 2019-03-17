@@ -3,6 +3,7 @@ master:
   image: jupyter/pyspark-notebook
   command: bash -c "/usr/local/spark/bin/spark-class org.apache.spark.deploy.master.Master -h master"
   hostname: master
+  container_name: master
   environment:
     MASTER: spark://master:7077
     SPARK_CONF_DIR: /conf
@@ -31,6 +32,7 @@ worker:
   image: jupyter/pyspark-notebook
   command: /usr/local/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://master:7077 -d /home/jovyan/work
   hostname: worker
+  container_name: worker
   environment:
     SPARK_CONF_DIR: /conf
     SPARK_WORKER_CORES: 2
@@ -56,6 +58,7 @@ worker:
 zookeeper:
   image: confluentinc/cp-zookeeper:latest
   hostname: zookeeper
+  container_name: zookeeper
   environment:
     ZOOKEEPER_CLIENT_PORT: 2181
     ZOOKEEPER_TICK_TIME: 2000
@@ -63,6 +66,7 @@ zookeeper:
 kafka:
   image: confluentinc/cp-kafka:latest
   hostname: kafka
+  container_name: kafka
   links:
     - zookeeper
   ports:
@@ -74,3 +78,24 @@ kafka:
     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
     KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+cassandra:
+    image: bitnami/cassandra
+    hostname: cassandra
+    container_name: cassandra
+
+    ports:
+      - '7000:7000'
+      - '7001:7001'
+      - '9042:9042'
+      - '9160:9160'
+    environment:
+      CASSANDRA_SEEDS: 'cassandra'
+      CASSANDRA_PASSWORD_SEEDER: 'yes'
+      CASSANDRA_PASSWORD: 'cassandra'
+      listen_address: "$${INTERNAL_IP}"
+      #    broadcast_address: public_ip
+      rpc_address: 0.0.0.0
+    volumes:
+      - ./data:/data
+      - ./database:/bitnami
