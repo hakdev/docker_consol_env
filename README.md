@@ -4,7 +4,9 @@ Consolidated Docker environment that runs - Spark Kafka Cassandra
 
 ## Images used:
 Spark : jupyter/pyspark-notebook
+
 Kafka: confluentinc/cp-zookeeper
+
 Cassandra: bitnami/cassandra
 
 ## How to run:
